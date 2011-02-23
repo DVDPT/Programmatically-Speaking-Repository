@@ -16,5 +16,20 @@ namespace Serie2.AsyncLike.Extensions
 
             return new TimeoutAwaiter<T>(_this, milis);
         }
+
+        public static IAwaiter<T> WithTimeout<T>(this IAwaiter<T> _this, int timeout)
+        {
+            if (timeout == Timeout.Infinite || timeout < 0)
+            {
+                return _this;
+            }
+
+            return new AwaiterWithTimer<T>(_this, timeout);
+        }
+
+        public static IAwaiter<T> WithCancellation <T>(this IAwaiter<T> _this, CancellationToken token)
+        {
+            return new AwaiterWithCancellation<T>(_this, token);
+        }
     }
 }
