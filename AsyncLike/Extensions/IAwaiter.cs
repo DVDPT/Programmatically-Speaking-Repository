@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace AsyncLike.Extensions
+namespace Serie2.AsyncLike.Extensions
 {
     public interface IAwaiter<out T>
     {
@@ -11,5 +8,14 @@ namespace AsyncLike.Extensions
         T EndAwait();
         bool TryCancelAwait(out Action continuation);
         IAwaiter<T> GetAwaiter();
+    }
+
+
+    public interface IAwaiter
+    {
+        bool BeginAwait(Action continuation);
+        void EndAwait();
+        bool TryCancelAwait(out Action continuation);
+        IAwaiter GetAwaiter();
     }
 }

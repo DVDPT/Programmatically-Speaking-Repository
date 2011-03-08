@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace Serie2.AsyncLike.Extensions
@@ -30,6 +27,42 @@ namespace Serie2.AsyncLike.Extensions
         public static IAwaiter<T> WithCancellation <T>(this IAwaiter<T> _this, CancellationToken token)
         {
             return new AwaiterWithCancellation<T>(_this, token);
+        }
+
+        public static IAwaiter<object> WrapToGenericAwaiter(this IAwaiter _this)
+        {
+            return new AwaiterWrapper(_this);
+        }
+
+        private class AwaiterWrapper : IAwaiter<object>
+        {
+
+            private IAwaiter _target;
+            public AwaiterWrapper(IAwaiter target)
+            {
+                _target = target;
+            }
+
+            public bool BeginAwait(Action continuation)
+            {
+                return _target.BeginAwait(continuation);
+            }
+
+            public object EndAwait()
+            {
+                _target.EndAwait();
+                return null;
+            }
+
+            public bool TryCancelAwait(out Action continuation)
+            {
+                return _target.TryCancelAwait(out continuation);
+            }
+
+            public IAwaiter<object> GetAwaiter()
+            {
+                return this;
+            }
         }
     }
 }
