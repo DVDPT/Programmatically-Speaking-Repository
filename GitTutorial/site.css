@@ -1,0 +1,57 @@
+#menu
+{
+	width : 19%;
+}
+
+#menu a
+{
+	background-color : silver;
+	font-size : 20px;
+	color : black;
+	text-decoration : none;
+	padding : 2px;
+}
+
+#menu a:hover
+{
+	background-color : gray;	
+}
+
+#menu ul
+{
+	list-style-type : none;
+	margin : 0px;
+	padding : 0px;
+}
+
+#menu li
+{
+	float : left;
+	border-width : 2px;
+	border-style : solid;
+	border-color : white;
+}
+ 
+#content
+{
+	display : block;
+	float : left;
+	background-color : silver;
+}
+
+.title
+{
+	text-align : center;
+}
+
+.center
+{
+	margin-left:auto;
+	margin-right:auto;
+	width:70%;
+}
+
+.bold
+{
+	font-weight : bold;
+}
