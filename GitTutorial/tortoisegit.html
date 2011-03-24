@@ -1,0 +1,67 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html >
+	<head>
+		<title>Tutorial de Git</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<link rel="stylesheet" type="text/css" href="site.css" />
+	</head>
+
+	<body>
+		<div id="top" class="center">
+			
+			<h1 class="title">Tutorial de Git</h1>
+			
+		</div>
+		
+		<div id="main">
+			<div id="menu" class="center">			
+				<ul>
+					<li><a href="index.html">Home</a></li>
+					<li><a href="usinggit.html">Utilizando o Git</a></li>
+					<li><a href="tortoisegit.html">TortoiseGit</a></li>
+					<li><a href="outros.html">Outros clientes Git</a></li>
+				</ul>
+				
+			</div>
+			
+			<div id="content">
+			
+				<h2 class="title">TortoiseGit</h1>
+
+				<p>TortoiseGit é uma aplicação cliente para repositórios git, esta aplicação à semelhança do TortoiseHg e TortoiseSVN integra com o Windows Explorer facilitando e automatizando assim o processo de commit, pull, push, etc.</p>
+				<h3>Instalar e configuração do TortoiseGit</h3>
+				1º Fazer download da aplicação cliente em ...
+				2º Configurar o TortoiseGit.
+
+				<p>Tal como já foi feito <a href="usinggit.html#gitconfig">anteriormente</a>, é necessário configurar o Tortoise de maneira a que este saiba qual o utilizador global e seu respectivo email. Esta informação serve para preencher o campos de Author quando é realizado um commit.</p>
+				<img src="images/timg1.png" class="center "/>
+				<p>Para aceder a este menu, basta em qualquer directoria, pressionar o botão direito, TortoiseGit -> Settings.</p>
+				<img src="images/timg2.png" class="center"/>
+				<h3>Utilizado o TortoiseGit</h3>
+				<p>Todos os comandos anteriormente explicados sobre o Git estão disponiveis nesta aplicação.</p>
+				<h4>git init e git clone</h4>
+				<img src="images/timg3.png" class="center"/>
+				<p>Selecionando uma pasta, que ainda não seja um repositório git, é possivel criar um novo repositório ou fazer clone de um já existente.</p>
+				<img src="images/timg4.png" class="center smallImg "/>
+				<p>Ao fazer clone de um repositório todos os dados de "ligação" ao repositório remoto deste ficam automaticamente preservados não sendo necessário qualquer configuração sobre o repositório remoto.
+				Se o repositório foi criado manualmente, no primeiro push irá ser necessário configurar o ponto remoto.</p>
+				<img src="images/timg5.png" class="center smallImg "/>
+				<h4>git commit</h4>
+				<p>Á semelhança dos outros Tortoises a operação commit detecta automaticamente as alterações na working-copy.</p>
+				<img src="images/timg6.png" class="center smallImg "/>
+				<p><span class="negrito">Nota:</span> Relembra-se que a operações de commit não sincroniza os dados com o servidor remoto.</p>
+				<h4>git push e git pull</h4>
+				<img src="images/timg7.png" class="center smallImg "/>
+				<img src="images/timg8.png" class="center smallImg "/>
+				<p>Em ambos os comandos irá ser necessário introduzir uma password, esta é a mesma que a usada na conta do GitHub.</p>
+
+				<h3>Conflictos</h3>
+				<img src="images/timg9.png" class="center smallImg "/>
+				<p>Na figura anterior é apresentado o resultado de um <span class="instruction">Pull</span> ao servidor. Como está evidenciado existiu um erro ao fazer merge entre o repositório e a working-copy. Estes erros são muito comuns quando várias pessoas num projecto estão a editar os mesmos ficheiros e os submetem para o repositório remoto. E tal como nos outros Tortoises, é possível resolvê-los facilmente.</p>
+				<img src="images/timg10.png" class="center smallImg "/>
+				<img src="images/timg11.png" class="center smallImg "/>						
+			</div>
+		</div>
+		
+	</body>
+</html>

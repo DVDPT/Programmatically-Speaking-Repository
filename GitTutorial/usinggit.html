@@ -16,8 +16,10 @@
 		<div id="main">
 			<div id="menu" class="center">			
 				<ul>
+					<li><a href="index.html">Home</a></li>
 					<li><a href="usinggit.html">Utilizando o Git</a></li>
 					<li><a href="tortoisegit.html">TortoiseGit</a></li>
+					<li><a href="outros.html">Outros clientes Git</a></li>
 				</ul>
 				
 			</div>
@@ -34,48 +36,58 @@
 				<h3>3º Passo - Criar repositório local</h3>
 				<p>Criar uma pasta, em qualquer localização do file system, onde se pretende ter o projecto guardado (evitar caminhos com caracteres não US-ASCII e espaços). </p>
 
-				<p>Usando o GitBash, instalado no 2º passo, vamos "caminhar" para a directoria do projecto utilizando comandos conhecidos do UNIX (cd) e dentro da directoria do projecto executar o comando 'git clone https://<url_do_repositorio>', este comando irá criar uma nova pasta com o nome do projecto no GitHub, que servirá de pasta base ao controlo de versões git, e vai ligar essa pasta com o repositório remoto e irá funcionar também como repositório local.</p>
+				<p>Usando o GitBash, instalado no 2º passo, vamos "caminhar" para a directoria do projecto utilizando comandos conhecidos do UNIX (cd) e dentro da directoria do projecto executar o comando <span class="instruction">git clone https://&lturl_do_repositorio&gt</span>, este comando irá criar uma nova pasta com o nome do projecto no GitHub, que servirá de pasta base ao controlo de versões git, e vai ligar essa pasta com o repositório remoto e irá funcionar também como repositório local.</p>
 
-				<IMG1>
+				<img src="images/img1.png" class="center"/>
 
-				<p><span class="bold">Nota:</span> É possível criar um repositório local sem ligar a nenhum repositório remoto usando o comando 'git init'.</p>
+				<p><span class="bold">Nota:</span> É possível criar um repositório local sem ligar a nenhum repositório remoto usando o comando <span class="instruction">git init</span>.</p>
 
 				<h3>4º Passo - Primeiro Commit</h3>
 				<p>Vamos então fazer o nosso primeiro commit, para tal vamos primeiro configurar o git, informação esta que vai servir como identificação nos logs dos commits.</p>
 
-				<p>Teremos então que efectuar dois comandos:</p>
+				<p><a id="gitconfig"></a>Teremos então que efectuar dois comandos:</p>
 				<ul>
-				<li>git config --global user.name "<nome>"</li>
-				<li>git config --global user.email <email></li>
+				<li><span class="instruction">git config --global user.name "&ltnome&gt"</span></li>
+				<li><span class="instruction">git config --global user.email &ltemail&gt</span></li>
 				</ul>
 
 				<p><span class="bold">Nota:</span> O email deverá coincidir com o da conta do GitHub para que este mostre na aplicação web o utilizador correcto, que fez o commit.</p>
 
-				<p>Antes de se fazer commit é necessário dizer quais os ficheiros que vamos adicionar através do commando "git add". A maneira mais rápida para adicionar todos os ficheiros é de fazer na raiz do repositório "git add ."</p>
+				<p>Antes de se fazer commit é necessário dizer quais os ficheiros que vamos adicionar através do commando <span class="instruction">git add</span>. A maneira mais rápida para adicionar todos os ficheiros é de fazer na raiz do repositório <span class="instruction">git add .</span></p>
 
-				<p>Assim que se adicionar todos os ficheiros para o commit podemos então executar o comando 'git commit -m "<Mensagem>" -a'. 
+				<p>Assim que se adicionar todos os ficheiros para o commit podemos então executar o comando <span class="instruction">git commit -m "&ltMensagem&gt" -a</span>. 
 				Neste comando existem dois parâmetros em utilização:</p>
 				<ul>
 				<li>O parâmetro 'm' que serve para indicar a mensagem associada ao commit, este é obrigatório. Se não for indicado ele irá utilizar um editor de texto para pedir a mensagem.</li>
-				<li>O parâmetro 'a' serve para indicar que queremos adicionar todos os ficheiros alterados e os removidos. Atenção, não adiciona novos ficheiros para isso deve-se sempre utilizar o 'git add'.</li>
+				<li>O parâmetro 'a' serve para indicar que queremos adicionar todos os ficheiros alterados e os removidos. Atenção, não adiciona novos ficheiros para isso deve-se sempre utilizar o <span class="instruction">git add</span>.</li>
 				</ul>
 				 
-				 <IMG2>
+				<img src="images/img2.png" class="center"/>
 				 
-				 <h3>5º Passo - Primeiro Push</h3>
-				 <p>No git um commit não implica uma alteração no repositório remoto, é o comando 'git push' que irá fazer isso.</p>
+				<h3>5º Passo - Primeiro Push</h3>
+				<p>No git um commit não implica uma alteração no repositório remoto, é o comando <span class="instruction">git push</span> que irá fazer isso.</p>
 				 
-				 <p>Caso o repositório local já se encontre ligado a um remoto basta fazer 'git push', irá ser pedida a password da conta, e se tudo correr bem o push irá ser concluído. </p>
+				<p>Caso o repositório local já se encontre ligado a um remoto basta fazer <span class="instruction">git push</span>, irá ser pedida a password da conta, e se tudo correr bem o push irá ser concluído. </p>
 				 
-				 <p><span class="bold">Nota:</span> Se não se encontrar ligado deve-se indicar no comando para que repositório se irá fazer o push, isto também pode ser usado num repositório ligado para fazer o push num outro repositório (git push https://<url_do_repositorio>).</p>
+				<p><span class="bold">Nota:</span> Se não se encontrar ligado deve-se indicar no comando para que repositório se irá fazer o push, isto também pode ser usado num repositório ligado para fazer o push num outro repositório (<span class="instruction">git push https://&lturl_do_repositorio&gt</span>).</p>
 				 
-				 <IMG3>
+				<img src="images/img3.png" class="center"/>
 				 
-				 <p>O push poderá não correr bem se o repositório local não estiver sincronizado com o repositório remoto, para sincronizar é preciso fazer um pull (o qual poderá originar conflitos). Depois de concluído o pull pode-se então fazer novamente o push. Em caso de conflito aconselha-se o uso de ferramentas que facilitam a resolução destes, nomeadamente o TortoiseGit. Para saber como resolver conflictos por linha de comandos clique aqui.</p>
+				<p>O push poderá não correr bem se o repositório local não estiver sincronizado com o repositório remoto, para sincronizar é preciso fazer um pull (o qual poderá originar conflitos). Depois de concluído o pull pode-se então fazer novamente o push. Em caso de conflito aconselha-se o uso de ferramentas que facilitam a resolução destes, nomeadamente o TortoiseGit. Para saber como resolver conflictos por linha de comandos <a href="#conflictos">clique aqui</a>.</p>
 				 
-				 <h3>6º Passo - Sincronizar repositório local com o remoto</h3>
-				<p>Para sincronizar o repositório local com o remoto é utilizado o comando 'git pull' que irá buscar a revisão HEAD da branch remota à qual o repositório local se encontra associado.</p>
+				<h3>6º Passo - Sincronizar repositório local com o remoto</h3>
+				<p>Para sincronizar o repositório local com o remoto é utilizado o comando <span class="instruction">git pull</span> que irá buscar a revisão HEAD da branch remota, à qual o repositório local se encontra associado.</p>
 				
+				
+				<a id="conflictos"></a><h3>Resolvendo conflictos</h3>
+				<p>A quando de um <span class="instruction">git pull</span> é possível acontecer conflictos, caso duas (ou mais) pessoas tenham alterado o mesmo ficheiro.</p>
+				<img src="images/imgc1.png" class="center"/>
+				
+				<p>Para resolver estes conflictos, a maneira mais simples, é de escolher uma das versões, recorrendo ao comando <span class="instruction">git checkout --theirs|--ours &ltnome_ficheiro&gt</span></p>
+				<img src="images/imgc2.png" class="center"/>
+				
+				<p>Depois de resolvido o conflito tem que se fazer commit para que o repositório local fique com a versão actualizada, ou seja, a versão que resolveu o conflicto.</p>
+ 				<img src="images/imgc3.png" class="center"/>
 			</div>
 		</div>
 		
