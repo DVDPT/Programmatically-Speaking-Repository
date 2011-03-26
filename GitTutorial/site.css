@@ -37,6 +37,12 @@
 	display : block;
 	float : left;
 	background-color : silver;
+	padding-bottom : 15px;
+}
+
+#main
+{
+	margin-bottom : 15px;
 }
 
 img
