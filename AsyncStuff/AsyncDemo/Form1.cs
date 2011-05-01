@@ -18,7 +18,7 @@ namespace AsyncDemo
         #region Initialization
 
         private CpuBoundOperationContainer _operationsContainer = null;
-
+        private SynchronizationContext _guiSynchronizationContext;
         public Form1()
         {
             InitializeComponent();
@@ -26,10 +26,11 @@ namespace AsyncDemo
             _operationsContainer = new CpuBoundOperationContainer
                 (
                     new CpuBoundOperation(_op0ProgressBar, _op0Label, _op0StopButton, MIN_OPERATION_TIME),
-                    new CpuBoundOperation(_op1ProgressBar, _op1Label, _op1StopButton, MIN_OPERATION_TIME + TIME_INCREMENT),
-                    new CpuBoundOperation(_op2ProgressBar, _op2Label, _op2StopButton, MIN_OPERATION_TIME + TIME_INCREMENT),
-                    new CpuBoundOperation(_op3ProgressBar, _op3Label, _op3StopButton, MIN_OPERATION_TIME + TIME_INCREMENT)
+                    new CpuBoundOperation(_op1ProgressBar, _op1Label, _op1StopButton, MIN_OPERATION_TIME + TIME_INCREMENT * 2),
+                    new CpuBoundOperation(_op2ProgressBar, _op2Label, _op2StopButton, MIN_OPERATION_TIME + TIME_INCREMENT * 3),
+                    new CpuBoundOperation(_op3ProgressBar, _op3Label, _op3StopButton, MIN_OPERATION_TIME + TIME_INCREMENT * 4)
                 );
+            _guiSynchronizationContext = SynchronizationContext.Current;
 
         }
         #endregion
@@ -116,10 +117,11 @@ namespace AsyncDemo
         #endregion
 
         #region Synchronous
-        /*/
+        //
 
         private const int MIN_OPERATION_TIME = 1000;
         private const int TIME_INCREMENT = 500;
+        private const int UPDATE_FREQUENCY = 10000;
 
         private void _startBut_Click(object sender, EventArgs e)
         {
@@ -138,16 +140,24 @@ namespace AsyncDemo
             var timeToExit = Environment.TickCount + op.OperationTime;
             var i = 0;
             int currentTicks;
-            op.OnStarted();
+           
             while ((currentTicks = Environment.TickCount) < timeToExit)
             {
-                if (i % 10 == 0)
+                if (i++ % UPDATE_FREQUENCY == 0)
                 {
                     DoUpdateOperationStatus(op, 100 * currentTicks / timeToExit);
                 }
-                ++i;
+
+                if(op.WasCancelled)
+                    break;
+
+                
             }
-            op.OnEnded();
+            
+            if(op.WasCancelled)
+                op.Cancel();
+            else
+                op.OnEnded();
         }
 
         private void DoUpdateOperationStatus(CpuBoundOperation op, int value)
@@ -270,41 +280,75 @@ namespace AsyncDemo
         #endregion
 
         #region Async
-        //
+        /*/
         private const int MIN_OPERATION_TIME = 2000;
         private const int TIME_INCREMENT = 1000;
         private const int UPDATE_FREQUENCY = 10000;
 
 
-        private void _startBut_Click(object sender, EventArgs e)
+
+
+        private async void _startBut_Click(object sender, EventArgs e)
         {
+
             ControlStartStopButton(true);
             var operations = _operationsContainer.Operations;
-            IEnumerable<Task> tasks = 0.To(operations.Length).Select(idx => DoLaunchCPUBoundFunction(operations[idx]));
+
+            #region multiTasking
+
+            /*/
+            IEnumerable<Task> tasks = 0.To(1)
+                                .Select(
+                                        idx => DoLaunchCPUBoundFunction(operations[idx])
+                                        );
+            await TaskEx.WhenAll(tasks);
+            //*/
+            #endregion
+
+            await DoLaunchCPUBoundFunction(operations[0]);
+
 
             ControlStartStopButton(false);
         }
 
         private async Task DoLaunchCPUBoundFunction(CpuBoundOperation op)
         {
-            var timeToExit = Environment.TickCount + op.OperationTime;
-            var i = 0;
-            await new SynchronizationContext().SwitchTo();
-            int currentTicks;
+
             op.OnStarted();
-            while ((currentTicks = Environment.TickCount) < timeToExit)
-            {
-                if (i % 10 == 0)
-                {
-                    DoUpdateOperationStatus(op, 100 * currentTicks / timeToExit);
-                }
-                ++i;
-            }
-            op.OnEnded();
+
+            bool wasCancelled = await TaskEx.Run(() =>
+                           {
+                               var timeToExit = Environment.TickCount + op.OperationTime;
+                               var i = 0;
+                               int currentTicks;
+                               while ((currentTicks = Environment.TickCount) < timeToExit)
+                               {
+                                   if (op.WasCancelled)
+                                   {
+                                       return false;
+                                   }
+                                   
+                                   if (i % UPDATE_FREQUENCY == 0)
+                                   {
+                                       DoUpdateOperationStatusAsync(op, 100 - (100 * (timeToExit - currentTicks)) / op.OperationTime);
+                                   }
+
+                                   
+                                   ++i;
+                               }
+                               return true;
+                           });
+            
+            if(wasCancelled)
+                op.OnCancel();
+            
+            else
+                op.OnEnded();
         }
 
-        private void DoUpdateOperationStatus(CpuBoundOperation op, int value)
+        private async void DoUpdateOperationStatusAsync(CpuBoundOperation op, int value)
         {
+            await _guiSynchronizationContext.SwitchTo();
             op.OnUpdate(value);
         }
 
@@ -330,6 +374,20 @@ namespace AsyncDemo
         {
             while (from < to)
                 yield return from++;
+        }
+
+    public static SynchronizationContextAwaiter SwitchTo(this SynchronizationContext context) { return new SynchronizationContextAwaiter { m_context = context }; }
+
+        public struct SynchronizationContextAwaiter
+        {
+            internal SynchronizationContext m_context;
+            public SynchronizationContextAwaiter GetAwaiter()
+            {
+                return this;
+            }
+            public bool IsCompleted { get { return false; } }
+            public void GetResult() { }
+            public void OnCompleted(Action continuation) { m_context.Post(s => ((Action)s)(), continuation); }
         }
     }
 
