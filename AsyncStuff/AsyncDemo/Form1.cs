@@ -288,7 +288,7 @@ namespace AsyncDemo
         #endregion
 
         #region Async
-        /*/
+        //
         private const int MIN_OPERATION_TIME = 2000;
         private const int TIME_INCREMENT = 1000;
         private const int UPDATE_FREQUENCY = 10000;
@@ -324,6 +324,7 @@ namespace AsyncDemo
 
         private async Task LaunchCpuBoundOperation(CpuBoundOperationUi op)
         {
+           
 
             op.OnStarted();
 
