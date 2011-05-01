@@ -25,10 +25,10 @@ namespace AsyncDemo
             _stopBut.Enabled = false;
             _operationsContainer = new CpuBoundOperationContainer
                 (
-                    new CpuBoundOperation(_op0ProgressBar, _op0Label, _op0StopButton, MIN_OPERATION_TIME),
-                    new CpuBoundOperation(_op1ProgressBar, _op1Label, _op1StopButton, MIN_OPERATION_TIME + TIME_INCREMENT * 2),
-                    new CpuBoundOperation(_op2ProgressBar, _op2Label, _op2StopButton, MIN_OPERATION_TIME + TIME_INCREMENT * 3),
-                    new CpuBoundOperation(_op3ProgressBar, _op3Label, _op3StopButton, MIN_OPERATION_TIME + TIME_INCREMENT * 4)
+                    new CpuBoundOperationUi(_op0ProgressBar, _op0Label, _op0StopButton, MIN_OPERATION_TIME),
+                    new CpuBoundOperationUi(_op1ProgressBar, _op1Label, _op1StopButton, MIN_OPERATION_TIME + TIME_INCREMENT * 2),
+                    new CpuBoundOperationUi(_op2ProgressBar, _op2Label, _op2StopButton, MIN_OPERATION_TIME + TIME_INCREMENT * 3),
+                    new CpuBoundOperationUi(_op3ProgressBar, _op3Label, _op3StopButton, MIN_OPERATION_TIME + TIME_INCREMENT * 4)
                 );
             _guiSynchronizationContext = SynchronizationContext.Current;
 
@@ -37,7 +37,7 @@ namespace AsyncDemo
 
         #region AuxClasses
 
-        internal class CpuBoundOperation
+        internal class CpuBoundOperationUi
         {
             private readonly ProgressBar _progressBar;
             private readonly Label _label;
@@ -47,7 +47,7 @@ namespace AsyncDemo
 
             public bool WasCancelled { get { return _wasCancelled; } }
 
-            public CpuBoundOperation(ProgressBar progressBar, Label label, Button stopButton, int operationTime)
+            public CpuBoundOperationUi(ProgressBar progressBar, Label label, Button stopButton, int operationTime)
             {
                 _progressBar = progressBar;
                 OperationTime = operationTime;
@@ -99,9 +99,9 @@ namespace AsyncDemo
 
         internal class CpuBoundOperationContainer
         {
-            public readonly CpuBoundOperation[] Operations;
+            public readonly CpuBoundOperationUi[] Operations;
 
-            public CpuBoundOperationContainer(params CpuBoundOperation[] operations)
+            public CpuBoundOperationContainer(params CpuBoundOperationUi[] operations)
             {
                 Operations = operations;
             }
@@ -109,7 +109,7 @@ namespace AsyncDemo
 
 
 
-        private void ControlStartStopButton(bool started)
+        private void ControlStartStopButtons(bool started)
         {
             _stopBut.Enabled = started;
             _startBut.Enabled = !started;
@@ -117,7 +117,7 @@ namespace AsyncDemo
         #endregion
 
         #region Synchronous
-        //
+        /*/
 
         private const int MIN_OPERATION_TIME = 1000;
         private const int TIME_INCREMENT = 500;
@@ -125,17 +125,29 @@ namespace AsyncDemo
 
         private void _startBut_Click(object sender, EventArgs e)
         {
-            ControlStartStopButton(true);
+            ControlStartStopButtons(true);
 
-            foreach (CpuBoundOperation operation in _operationsContainer.Operations)
+            foreach (CpuBoundOperationUi operation in _operationsContainer.OperationsUi)
             {
-                DoLaunchCPUBoundFunction(operation);
+                LaunchCpuBoundOperation(operation);
             }
 
-            ControlStartStopButton(false);
+            ControlStartStopButtons(false);
         }
 
-        private void DoLaunchCPUBoundFunction(CpuBoundOperation op)
+        private void LaunchCpuBoundOperation(CpuBoundOperationUi op)
+        {
+            op.OnStarted();
+
+            var wasCompleted = CpuBoundOperation(op);
+
+            if (wasCompleted)
+               op.OnEnded();
+            else
+                op.Cancel();
+        }
+
+        private bool CpuBoundOperation(CpuBoundOperationUi op)
         {
             var timeToExit = Environment.TickCount + op.OperationTime;
             var i = 0;
@@ -148,19 +160,15 @@ namespace AsyncDemo
                     DoUpdateOperationStatus(op, 100 * currentTicks / timeToExit);
                 }
 
-                if(op.WasCancelled)
-                    break;
+                if (op.WasCancelled)
+                    return false;
 
                 
             }
-            
-            if(op.WasCancelled)
-                op.Cancel();
-            else
-                op.OnEnded();
+            return true;
         }
 
-        private void DoUpdateOperationStatus(CpuBoundOperation op, int value)
+        private void DoUpdateOperationStatus(CpuBoundOperationUi op, int value)
         {
             op.OnUpdate(value);
         }
@@ -168,7 +176,7 @@ namespace AsyncDemo
 
         private void _stopBut_Click(object sender, EventArgs e)
         {
-            foreach (CpuBoundOperation operation in _operationsContainer.Operations)
+            foreach (CpuBoundOperationUi operation in _operationsContainer.OperationsUi)
             {
 
                 operation.Cancel();
@@ -190,18 +198,18 @@ namespace AsyncDemo
 
         private void _startBut_Click(object sender, EventArgs e)
         {
-            ControlStartStopButton(true);
+            ControlStartStopButtons(true);
 
-            Action onCompleted = () => ControlStartStopButton(false);
+            Action onCompleted = () => ControlStartStopButtons(false);
 
 
-            LaunchCPUBoundFunctionsAsync(onCompleted);
+            LaunchCpuBoundFunctionsAsync(onCompleted);
 
 
 
         }
 
-        private void LaunchCPUBoundFunctionsAsync(Action onCompleted)
+        private void LaunchCpuBoundFunctionsAsync(Action onCompleted)
         {
 
             var guiContext = SynchronizationContext.Current;
@@ -212,13 +220,13 @@ namespace AsyncDemo
                                              var func = ar.AsyncState as Action;
                                              func.EndInvoke(ar);
 
-                                             if (Interlocked.Increment(ref operationsFinished) == _operationsContainer.Operations.Count())
+                                             if (Interlocked.Increment(ref operationsFinished) == _operationsContainer.Operations.Length)
                                              {
                                                  guiContext.Post(_=>onCompleted(),null);
                                              }
                                          };
 
-            foreach (CpuBoundOperation operation in _operationsContainer.Operations)
+            foreach (CpuBoundOperationUi operation in _operationsContainer.Operations)
             {
                 var op = operation;
                 Action function = () =>
@@ -226,7 +234,7 @@ namespace AsyncDemo
 
                                           guiContext.Post(_ => op.OnStarted(), null);
 
-                                          if (DoLaunchCPUBoundFunction(op, guiContext)) 
+                                          if (LaunchCpuBoundOperation(op, guiContext)) 
                                               guiContext.Post(_ => op.OnEnded(), null);
                                           else
                                               guiContext.Post(_=>op.OnCancel(),null);
@@ -240,7 +248,7 @@ namespace AsyncDemo
             }
         }
 
-        private bool DoLaunchCPUBoundFunction(CpuBoundOperation op, SynchronizationContext guiContext)
+        private bool LaunchCpuBoundOperation(CpuBoundOperationUi op, SynchronizationContext guiContext)
         {
             var timeToExit = Environment.TickCount + op.OperationTime;
             var i = 0;
@@ -261,14 +269,14 @@ namespace AsyncDemo
             return true;
         }
 
-        private void DoUpdateOperationStatus(CpuBoundOperation op, int value, SynchronizationContext guiContext)
+        private void DoUpdateOperationStatus(CpuBoundOperationUi op, int value, SynchronizationContext guiContext)
         {
             guiContext.Send(_ => op.OnUpdate(value), null);
         }
 
         private void _stopBut_Click(object sender, EventArgs e)
         {
-            foreach (CpuBoundOperation operation in _operationsContainer.Operations)
+            foreach (CpuBoundOperationUi operation in _operationsContainer.Operations)
             {
 
                 operation.Cancel();
@@ -291,62 +299,72 @@ namespace AsyncDemo
         private async void _startBut_Click(object sender, EventArgs e)
         {
 
-            ControlStartStopButton(true);
+            ControlStartStopButtons(true);
             var operations = _operationsContainer.Operations;
 
             #region multiTasking
 
-            /*/
-            IEnumerable<Task> tasks = 0.To(1)
-                                .Select(
-                                        idx => DoLaunchCPUBoundFunction(operations[idx])
-                                        );
+          
+            var tasks = new Task[operations.Length];
+
+            for (int i = 0; i < operations.Length; ++i)
+            {
+                tasks[i] = LaunchCpuBoundOperation(operations[i]);
+            }
+
             await TaskEx.WhenAll(tasks);
-            //*/
+           
             #endregion
 
-            await DoLaunchCPUBoundFunction(operations[0]);
+            //await LaunchCpuBoundOperation(operations[0]);
 
 
-            ControlStartStopButton(false);
+            ControlStartStopButtons(false);
         }
 
-        private async Task DoLaunchCPUBoundFunction(CpuBoundOperation op)
+        private async Task LaunchCpuBoundOperation(CpuBoundOperationUi op)
         {
 
             op.OnStarted();
 
-            bool wasCancelled = await TaskEx.Run(() =>
-                           {
-                               var timeToExit = Environment.TickCount + op.OperationTime;
-                               var i = 0;
-                               int currentTicks;
-                               while ((currentTicks = Environment.TickCount) < timeToExit)
-                               {
-                                   if (op.WasCancelled)
-                                   {
-                                       return false;
-                                   }
-                                   
-                                   if (i % UPDATE_FREQUENCY == 0)
-                                   {
-                                       DoUpdateOperationStatusAsync(op, 100 - (100 * (timeToExit - currentTicks)) / op.OperationTime);
-                                   }
-
-                                   
-                                   ++i;
-                               }
-                               return true;
-                           });
+            bool wasCompleted = await CpuBoundOperation(op);
             
-            if(wasCancelled)
-                op.OnCancel();
+            if(wasCompleted)
+                op.OnEnded();
             
             else
-                op.OnEnded();
+               op.OnCancel();
         }
 
-        private async void DoUpdateOperationStatusAsync(CpuBoundOperation op, int value)
+
+        private Task<bool> CpuBoundOperation(CpuBoundOperationUi op)
+        {
+            return TaskEx.Run(() =>
+            {
+                var timeToExit = Environment.TickCount + op.OperationTime;
+                var i = 0;
+                int currentTicks;
+                while ((currentTicks = Environment.TickCount) < timeToExit)
+                {
+                    if (op.WasCancelled)
+                    {
+                        return false;
+                    }
+
+                    if (i % UPDATE_FREQUENCY == 0)
+                    {
+                        DoUpdateOperationStatusAsync(op, 100 - (100 * (timeToExit - currentTicks)) / op.OperationTime);
+                    }
+
+
+                    ++i;
+                }
+                return true;
+            });
+        }
+
+
+        private async void DoUpdateOperationStatusAsync(CpuBoundOperationUi op, int value)
         {
             await _guiSynchronizationContext.SwitchTo();
             op.OnUpdate(value);
@@ -354,7 +372,7 @@ namespace AsyncDemo
 
         private void _stopBut_Click(object sender, EventArgs e)
         {
-            foreach (CpuBoundOperation operation in _operationsContainer.Operations)
+            foreach (CpuBoundOperationUi operation in _operationsContainer.Operations)
             {
 
                 operation.Cancel();
