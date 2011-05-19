@@ -127,7 +127,7 @@ namespace AsyncDemo
         {
             ControlStartStopButtons(true);
 
-            foreach (CpuBoundOperationUi operation in _operationsContainer.OperationsUi)
+            foreach (CpuBoundOperationUi operation in _operationsContainer.Operations)
             {
                 LaunchCpuBoundOperation(operation);
             }
@@ -176,7 +176,7 @@ namespace AsyncDemo
 
         private void _stopBut_Click(object sender, EventArgs e)
         {
-            foreach (CpuBoundOperationUi operation in _operationsContainer.OperationsUi)
+            foreach (CpuBoundOperationUi operation in _operationsContainer.Operations)
             {
 
                 operation.Cancel();
@@ -302,27 +302,28 @@ namespace AsyncDemo
             ControlStartStopButtons(true);
             var operations = _operationsContainer.Operations;
 
-            #region multiTasking
+           
 
           
             var tasks = new Task[operations.Length];
 
-            for (int i = 0; i < operations.Length; ++i)
-            {
-                tasks[i] = LaunchCpuBoundOperation(operations[i]);
-            }
+            //for (int i = 0; i < operations.Length; ++i)
+            //{
+            //    tasks[i] = LaunchCpuBoundOperationAsync(operations[i]);
+            //}
 
-            await TaskEx.WhenAll(tasks);
+            //await TaskEx.WhenAll(tasks);
            
-            #endregion
+         
 
-            //await LaunchCpuBoundOperation(operations[0]);
+            await LaunchCpuBoundOperationAsync(operations[0]);
 
 
             ControlStartStopButtons(false);
         }
 
-        private async Task LaunchCpuBoundOperation(CpuBoundOperationUi op)
+        private async Task LaunchCpuBoundOperationAsync
+            (CpuBoundOperationUi op)
         {
            
 
