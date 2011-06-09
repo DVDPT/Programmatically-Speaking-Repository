@@ -83,6 +83,7 @@ namespace AsyncDemo
             {
                 _stopButton.Enabled = false;
                 _label.Text = "Finished";
+                _progressBar.Value = 100;
             }
 
             public void OnUpdate(int val)
@@ -302,10 +303,10 @@ namespace AsyncDemo
             ControlStartStopButtons(true);
             var operations = _operationsContainer.Operations;
 
-           
 
-          
-            var tasks = new Task[operations.Length];
+
+
+            //var tasks = new Task[operations.Length];
 
             //for (int i = 0; i < operations.Length; ++i)
             //{
@@ -322,8 +323,7 @@ namespace AsyncDemo
             ControlStartStopButtons(false);
         }
 
-        private async Task LaunchCpuBoundOperationAsync
-            (CpuBoundOperationUi op)
+        private async Task LaunchCpuBoundOperationAsync(CpuBoundOperationUi op)
         {
            
 
@@ -387,7 +387,8 @@ namespace AsyncDemo
         #endregion
     }
 
-
+    #region Extensions
+    
     public static class Extensions
     {
         public static IEnumerable<int> To(this int from, int to)
@@ -410,6 +411,7 @@ namespace AsyncDemo
             public void OnCompleted(Action continuation) { m_context.Post(s => ((Action)s)(), continuation); }
         }
     }
-
+    #endregion
 }
+
 
